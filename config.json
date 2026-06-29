@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "supermas",
+    "name": "supermas",
+    "url": "https://www.supermas.com.py/",
+    "type": "html",
+    "product_selector": "",
+    "name_selector": "",
+    "price_selector": "",
+    "image_selector": "img"
+  }
+]
