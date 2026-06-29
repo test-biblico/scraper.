@@ -3,7 +3,8 @@ from curl_cffi import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-PRICE_REGEX = re.compile(r'(\d+[.,]\d{2})\s*€')
+# Expresión regular adaptada a Paraguay: busca "15.000 Gs." o "25.500,50₲" o "15000.50"
+PRICE_REGEX = re.compile(r'(\d{1,3}(?:\.\d{3})*(?:,\d{2}))\s*(?:Gs\.?|₲|€)?', re.IGNORECASE)
 
 def load_config():
     with open('config.json', 'r', encoding='utf-8') as f:
@@ -14,6 +15,18 @@ def fix_url(base, src):
     if src.startswith('//'): return 'https:' + src
     if src.startswith('http'): return src
     return urljoin(base, src)
+
+def parse_price(text):
+    match = PRICE_REGEX.search(text)
+    if not match: return None
+    price_str = match.group(1)
+    # Formato paraguayo: quita el punto de los miles, cambia la coma a punto decimal
+    price_str = price_str.replace('.', '')
+    price_str = price_str.replace(',', '.')
+    try:
+        return float(price_str)
+    except:
+        return None
 
 def scrape_site(site):
     print(f"Scrapeando: {site['name']}...")
@@ -30,7 +43,6 @@ def scrape_site(site):
     soup = BeautifulSoup(res.text, 'html.parser')
     products = []
     
-    # Si está vacío, usa 'div' por defecto para evitar errores
     product_sel = site.get('product_selector') or 'div'
     cards = soup.select(product_sel)
     
@@ -41,10 +53,11 @@ def scrape_site(site):
         name_el = card.select_one(name_sel)
         item['name'] = name_el.get_text(strip=True) if name_el else ""
         
+        # Buscar precio en todo el texto de la tarjeta
         price_sel = site.get('price_selector')
         price_el = card.select_one(price_sel) if price_sel else card
-        match = PRICE_REGEX.search(price_el.get_text(strip=True))
-        item['price'] = float(match.group(1).replace(',', '.')) if match else 0
+        price_text = price_el.get_text(strip=True) if price_el else ""
+        item['price'] = parse_price(price_text) or 0
         
         img_sel = site.get('image_selector') or 'img'
         img_el = card.select_one(img_sel)
