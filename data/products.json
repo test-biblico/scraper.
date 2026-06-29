@@ -1,0 +1,6 @@
+[
+  {"site": "Supermas", "site_id": "supermas", "name": "Arroz Blanco", "price": 5.20, "image": null, "measure": "1kg"},
+  {"site": "Test Euros", "site_id": "prueba-euros", "name": "Leche Entera", "price": 1.05, "image": null, "measure": "1L"},
+  {"site": "Test Euros", "site_id": "prueba-euros", "name": "Pan de Molde", "price": 0.89, "image": null, "measure": "800g"},
+  {"site": "Supermas", "site_id": "supermas", "name": "Aceite de Oliva", "price": 8.50, "image": null, "measure": "750ml"}
+]
